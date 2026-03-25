@@ -6,17 +6,18 @@ This repository contains the code for a small data mining project developed as p
 
 University of Lucerne
 
-Student Name  
+Alessio Gallonetto  
 Course: Data Mining for the Social Sciences using R
 Term: Spring 2026
 
 ## Project Goal
 
-The goal of this project is to collect and analyze data from an online source (API or web scraping) in order to answer a research question relevant to political or social science.
+The goal of this project is to lay a foundation for data mining informations relevant to the "review bombing" phenomenon,
+which refers to the practice of users leaving negative reviews for a product, service, or content as a form of protest or expression of dissatisfaction.
 
-The project should demonstrate:
+This project highlights:
 
-- Identification of a suitable data source
+- Suitable data sources acquiring the needed data
 - Automated data collection (API or scraping)
 - Data cleaning and preparation
 - Reproducible analysis
@@ -24,21 +25,21 @@ The project should demonstrate:
 
 ## Research Question
 
-*(Replace with your own question)*
+My research topic focuses on the influence of online sentiment and online social polarisation on games sales, 
+analyzing the sales data during the enaction of so called “review bombings”.
 
-Example:
-- How frequently do political speeches contain populist rhetoric?
 
 
 ## Data Source
 
-Describe the data source here.
-
-Example:
-
-- API: https://example-api.com
-- Documentation: https://example-api.com/docs
-- Access method: HTTP GET requests
+-API: https://api.rawg.io/
+ Documentation: https://api.rawg.io/docs/
+ Access Method: HTTP GET requests using an API key, provided by the website after creating an account(free access)
+  Note: To access the API, the key should be added to the URL, but in order to not expose the api key, 
+  storing it as an env. variable is recommended. 
+ 
+-
+	
 
 
 ## Repository Structure
