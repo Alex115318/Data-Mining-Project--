@@ -21,6 +21,9 @@ api_key <-  Sys.getenv("RAWG_api_key") # Set API Key as variable from an env.
 bearer <- stringr::str_c(api_key)
 print(bearer)
 
+url <- paste0("https://api.rawg.io/api/games?search=call-of-duty-black-ops-7&search_precise=true?key=",
+              api_key
+              )
 bo7 <- GET(
   url = "https://api.rawg.io/api/games?search=call-of-duty-black-ops-7&search_precise=true?",#Precise search for the game, to avoid getting other games with similar names.
   add_headers("key=", Authorization = paste(api_key)) 
