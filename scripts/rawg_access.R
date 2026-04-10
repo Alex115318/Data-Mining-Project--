@@ -53,15 +53,13 @@ print(parsed_data) #Check the parsed data structure
 
 ## Check Metacritic score ----
 
-  
-  # Check for Metacritic score
-  if (!is.null(parsed_data$metacritic) && !is.na(parsed_data$metacritic)) {
+if (!is.null(parsed_data$metacritic) && !is.na(parsed_data$metacritic)) {
     print(paste("Metacritic score:", parsed_data$metacritic))
-  } else {
+} else {
     # If Metacritic is missing, check for logical content (e.g., "tbd", "N/A", or a description)
     if (!is.null(parsed_data$rating_top) && parsed_data$rating_top != 0) {
       print(paste("No Metacritic score. RAWG rating:", parsed_data$rating_top, "(out of 5)"))
-    } else if (!is.null(parsed_data$ratings)) {
+  } else if (!is.null(parsed_data$ratings)) {
       # Check for any available ratings in the ratings list
       ratings <- parsed_data$ratings
       if (length(ratings) > 0) {
@@ -70,8 +68,8 @@ print(parsed_data) #Check the parsed data structure
       } else {
         print("No Metacritic score or ratings found.")
       }
-    } else {
+  } else {
       print("No Metacritic score or alternative ratings available.")
     }
-  }
+}
 
