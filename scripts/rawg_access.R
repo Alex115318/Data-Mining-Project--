@@ -1,64 +1,77 @@
+# Header----
+
+# Alessio Gallonetto
+# Data Mining and Large Language Models (LLMs) for Political and Social Scienes
+# Personal Capstone Project
+
+# - The impact of "review bombings" 
 
 # Initialization ----------------------------------------------------------
+install.packages("RJSONIO")
 
 library("tidyverse")
 library("rvest")
 library("jsonlite")
 library("httr")
 library("dplyr")
-
-install.packages("RJSONIO")
 library("RJSONIO")
 
-# Reading the html ----
-url_rawg <- "https://rawg.io/"
 
-rawg_html <- read_html(url_rawg) 
 
-print(rawg_html)
+
 # Accessing RAWG ----------------------------------------------------------
+
+#To access this API, the parameters have to be included in the URL,
+#which means that the API key has to be explicitly shown in the URL.
+#For that, we store the key in an environmental variable and add it to the URL as string
+
 api_key <-  Sys.getenv("RAWG_api_key") # Set API Key as variable from an env.
-bearer <- stringr::str_c(api_key)
-print(bearer)
 
-url <- paste0("https://api.rawg.io/api/games?search=call-of-duty-black-ops-7&search_precise=true?key=",
-              api_key
-              )
-bo7 <- GET(
-  url = "https://api.rawg.io/api/games?search=call-of-duty-black-ops-7&search_precise=true?",#Precise search for the game, to avoid getting other games with similar names.
-  add_headers("key=", Authorization = paste(api_key)) 
-)
-print(bo7)
-games <-  GET("https://api.rawg.io/api/games?key=api_key")
+url <- paste0("https://api.rawg.io/api/games?key=",
+              api_key,
+              "&search=call-of-duty-black-ops-7&search_exact=TRUE&platforms=4") 
+print(url) #Check for the correct URL structure
 
-print(api_key)
+#In order to search for other review bombed games, change the search parameter to the
+#title of the game subject of the project
+
+# GET Request ----
+
+bo7 <- GET(url)
+
 #Check if data is retrieved correctly
-bo7_check <- read_json(bo7["status_code"])
-if (bo7_check == 200) {
-  print("Data retrieved successfully!")
-} else {
-  print(paste("Error retrieving data. Status code:", bo7_check))
-}
+
+http_status(bo7)
  
-bo7_json <- read_json(bo7)
+# Parse the JSON response into a data frame ----
+raw <- content(bo7, "text")
+print(raw) #Check the raw JSON response
 
 
+parsed_data <- content(bo7, "parsed", simplifyVector = TRUE)
+print(parsed_data) #Check the parsed data structure
 
+## Check Metacritic score ----
 
+  
+  # Check for Metacritic score
+  if (!is.null(parsed_data$metacritic) && !is.na(parsed_data$metacritic)) {
+    print(paste("Metacritic score:", parsed_data$metacritic))
+  } else {
+    # If Metacritic is missing, check for logical content (e.g., "tbd", "N/A", or a description)
+    if (!is.null(parsed_data$rating_top) && parsed_data$rating_top != 0) {
+      print(paste("No Metacritic score. RAWG rating:", parsed_data$rating_top, "(out of 5)"))
+    } else if (!is.null(parsed_data$ratings)) {
+      # Check for any available ratings in the ratings list
+      ratings <- parsed_data$ratings
+      if (length(ratings) > 0) {
+        print("No Metacritic score. Available ratings:")
+        print(ratings)
+      } else {
+        print("No Metacritic score or ratings found.")
+      }
+    } else {
+      print("No Metacritic score or alternative ratings available.")
+    }
+  }
 
-# Trying documentation code ----
-
-url <- "https://api.rawg.io/api/games"
-new_url <- add_headers("?key=")
-print(new_url)
-queryString <- list( 
-  search = "call%20of%20duty%20black%20ops%207",
-  platforms = "4" #For PC
-  )
-
-response <- VERB("GET", url, query = queryString, content_type("application/octet-stream"), accept("application/json"))
-
-content(response, "text")
-response_json <- read_json(response, simplyfyVector = TRUE)
-response_tibble <- as_tibble(response_json)
-print(response_json)
