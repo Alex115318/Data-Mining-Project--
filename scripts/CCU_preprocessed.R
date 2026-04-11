@@ -6,7 +6,7 @@
 
 # - The impact of "review bombings" 
 
-# File Analyzer for CCUs
+# Preprocessing for CCUs
 
 # Initialization ----
 install.packages("tidyverse")
