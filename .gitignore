@@ -8,7 +8,6 @@
 
 # User-specific files
 .Ruserdata
-/data_raw
 api_key.txt
 rawg_api.txt
 mistral_api.txt
