@@ -8,6 +8,7 @@
 
 # Initialization ----------------------------------------------------------
 install.packages("RJSONIO")
+install.packages("stringr")
 
 library("tidyverse")
 library("rvest")
@@ -15,6 +16,7 @@ library("jsonlite")
 library("httr")
 library("dplyr")
 library("RJSONIO")
+library("stringr")
 
 
 
@@ -37,7 +39,11 @@ print(url) #Check for the correct URL structure
 
 # GET Request ----
 
-bo7 <- GET(url)
+bo7 <- GET(url,
+           add_headers(
+             From = "alessio.gallonetto@stud.unilu.ch",
+             user_agent = R.version$version.string
+           ))
 
 #Check if data is retrieved correctly
 
@@ -53,15 +59,15 @@ print(parsed_data) #Check the parsed data structure
 
 ## Check Metacritic score ----
 
-if (!is.null(parsed_data$metacritic) && !is.na(parsed_data$metacritic)) {
-    print(paste("Metacritic score:", parsed_data$metacritic))
+if (!is.null(parsed_data$results$metacritic) && !is.na(parsed_data$results$metacritic)) {
+    print(paste("Metacritic score:", parsed_data$results$metacritic))
 } else {
     # If Metacritic is missing, check for logical content (e.g., "tbd", "N/A", or a description)
-    if (!is.null(parsed_data$rating_top) && parsed_data$rating_top != 0) {
-      print(paste("No Metacritic score. RAWG rating:", parsed_data$rating_top, "(out of 5)"))
-  } else if (!is.null(parsed_data$ratings)) {
+    if (!is.null(parsed_data$results$rating) && parsed_data$results$rating != 0) {
+      print(paste("No Metacritic score. RAWG rating:", parsed_data$results$rating, "(out of 5)"))
+  } else if (!is.null(parsed_data$results$ratings)) {
       # Check for any available ratings in the ratings list
-      ratings <- parsed_data$ratings
+      ratings <- parsed_data$results$ratings
       if (length(ratings) > 0) {
         print("No Metacritic score. Available ratings:")
         print(ratings)
@@ -72,4 +78,13 @@ if (!is.null(parsed_data$metacritic) && !is.na(parsed_data$metacritic)) {
       print("No Metacritic score or alternative ratings available.")
     }
 }
+
+##Check release date ----
+
+if (!is.null(parsed_data$results$released) && !is.na(parsed_data$results$released)) {
+    print(paste("Release date:", parsed_data$results$released))
+} else {
+    print("Release date is missing.")
+}
+
 
