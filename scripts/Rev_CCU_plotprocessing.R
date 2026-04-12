@@ -73,7 +73,7 @@ ggplot() +
   scale_fill_manual(values = c("Positive" = "red", "Negative" = "blue")) +
   # Labels and title
   labs(
-    title = "Reviews and Player Counts Over Time",
+    title = "Reviews Over Time",
     x = "Date",
     y = "N. Reviews",
     fill = "Review Type"
