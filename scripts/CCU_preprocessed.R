@@ -45,8 +45,8 @@ ccu_data <- ccu_data %>%
 
 ccu_data <- ccu_data %>% select(-DateTime) %>% rename(Date = date_column) 
 
-# Filter the data to include only entries from November 14, 2025, onwards
-ccu_data <- ccu_data %>% filter(Date >= as.Date("2025-11-14"))
+# Filter the data to include only entries from November 14, 2025 to March 10 2026
+ccu_data <- ccu_data %>% filter(Date >= as.Date("2025-11-14") & Date <= as.Date("2026-03-10"))
 
 ## Save the cleaned data to a new CSV file for future analysis ----
 write.csv(ccu_data, "data_preprocessed/CCUs_bo7_cleaned.csv", row.names = FALSE) 
