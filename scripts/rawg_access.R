@@ -6,6 +6,8 @@
 
 # - The impact of "review bombings" 
 
+# RAWG.io Database and general information about a product
+
 # Initialization ----------------------------------------------------------
 install.packages("RJSONIO")
 install.packages("stringr")
