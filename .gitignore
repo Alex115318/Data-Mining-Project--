@@ -8,10 +8,10 @@
 
 # User-specific files
 .Ruserdata
-*.csv
 /data_raw
 api_key.txt
 rawg_api.txt
+mistral_api.txt
 # Example code in package build process
 *-Ex.R
 
