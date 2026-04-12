@@ -6,7 +6,7 @@
 
 # - The impact of "review bombings" 
 
-# Processing of number of reviews and CCUs in a single CSV file for plotting
+# Processing of number of reviews and CCUs in a single CSV file and plotting
 
 # Initialization ----
 install.packages("tidyverse")
@@ -29,34 +29,34 @@ file.exists("data_preprocessed/CCUs_bo7_cleaned.csv") #This file contains the nu
 reviews_ppc <- read.csv("data_preprocessed/Reviewnums_bo7_cleaned.csv")
 ccu_ppc <- read.csv("data_preprocessed/CCUs_bo7_cleaned.csv")
 
-# Merge the two data frames by the "Date" column ----
-merged_data <- merge(reviews_ppc, ccu_ppc, by = "Date")
-
-# Save the merged data to a new CSV 
-write.csv(merged_data, "data_preprocessed/merged_reviews_ccus.csv", row.names = FALSE)
-
-
+#Transform dates from character into date format
+reviews_date <- as.Date(c(reviews_ppc$Date))
+ccu_date <- as.Date(c(ccu_ppc$Date))
 
 # Create Plots for graphical analysis ----
 
 ## Positive Reviews
 positive_reviews <- data.frame(
-  date = merged_data$Date,
-  count = merged_data$Positive.reviews,
+  date = reviews_date,
+  count = reviews_ppc$Positive.reviews,
   type = "Positive"
 )
 
 ## Negative Reviews. For better plotting, we will convert the negative values to positive
 negative_reviews <- data.frame(
-  date = merged_data$Date,
-  count = abs(merged_data$Negative.reviews),
+  date = reviews_date,
+  count = abs(reviews_ppc$Negative.reviews),
   type = "Negative"
 )
+
+class(positive_reviews$date) # Check the class of the date variable in positive_reviews
+class(negative_reviews$date) # Check the class of the date variable in negative_reviews
+
 
 ## Combine the two data frames for plotting
 reviewsplots_df <- rbind(positive_reviews, negative_reviews)
 
-## Plotting 
+## Plotting for Reviews ----
 ggplot() +
   # Histograms for reviews
   geom_bar(
@@ -65,20 +65,9 @@ ggplot() +
     stat = "identity",
     position = "dodge",
     alpha = 0.7
-  ) + # Curves for player counts
-  geom_line(
-    data = merged_data,
-    aes(x = Date, y = Players / max(merged_data$Players, na.rm = TRUE) * max(reviewsplots_df$count, na.rm = TRUE)),
-    color = "green",
-    linetype = "solid",
-    linewidth = 1
   ) +
-  geom_line(
-    data = merged_data,
-    aes(x = Date, y = Average.Players / max(merged_data$Average.Players, na.rm = TRUE) * max(reviewsplots_df$count, na.rm = TRUE)),
-    color = "orange",
-    linetype = "dashed",
-    linewidth = 1
+  #Scale x axis for readability
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month"
   ) +
   # Customize colors for histograms
   scale_fill_manual(values = c("Positive" = "red", "Negative" = "blue")) +
@@ -86,14 +75,65 @@ ggplot() +
   labs(
     title = "Reviews and Player Counts Over Time",
     x = "Date",
-    y = "Count / Normalized Players",
+    y = "N. Reviews",
     fill = "Review Type"
-  ) +
-  # Adjust y-axis to accommodate both histograms and curves
-  scale_y_continuous(
-    sec.axis = sec_axis(~ . / max(reviewsplots_df$count, na.rm = TRUE) * max(merged_data$Players, na.rm = TRUE), name = "Player Counts")
   ) +
   # Theme
   theme_minimal() +
   theme(legend.position = "top")
   
+## Saving plot
+ggsave("plots/Reviews_plot.png", width = 10, height = 6)
+
+
+## Create dfs for Player Counts 
+
+## Player count
+pplayer <- data.frame(
+  date = ccu_date,
+  count = ccu_ppc$Players,
+  type = "Precise Players"
+)
+
+## Average player count
+aplayer <- data.frame(
+  date = ccu_date,
+  count = ccu_ppc$Average.Players,
+  type = "Average Players"
+)
+
+class(pplayer$date) # Check the class of the date variable in pplayer
+class(aplayer$date) # Check the class of the date variable in aplayer
+
+## Plotting for CCUs ----
+ggplot() +
+  # Line plot for pplayer
+  geom_line(
+    data = pplayer,
+    aes(x = date, y = count, color = type, group = type),
+    size = 1.5
+  ) +
+  # Line plot for aplayer
+  geom_line(
+    data = aplayer,
+    aes(x = date, y = count, color = type, group = type),
+    size = 1.5
+  ) +
+  # Scale x axis for readability
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month"
+  ) +
+  # Customize colors for lines
+  scale_color_manual(values = c("Precise Players" = "green", "Average Players" = "orange")) +
+  # Labels and title
+  labs(
+    title = "Player Counts Over Time",
+    x = "Date",
+    y = "N. Players",
+    color = "Player Count Type"
+  ) +
+  # Theme
+  theme_minimal() +
+  theme(legend.position = "top")
+
+## Saving plot
+ggsave("plots/CCU_plot.png", width = 10, height = 6)
