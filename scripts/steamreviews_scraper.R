@@ -30,13 +30,13 @@ all_reviews <- list() # Initialize an empty list to store all reviews
 ### json=1: Return the response in JSON format.
 ### filter=all: Fetch all reviews, including those that are not recommended. 
 ### language=english: Fetch reviews in English.
-### day_range=148: Fetch reviews from the last 365 days. This limits the reviews to a specific time frame. It is recommended to define this parameter, since older reviews date back years.
+### day_range=365: Fetch reviews from the last 365 days. This limits the reviews to a specific time frame. It is recommended to define this parameter, since older reviews date back years.
 ### start_offset=0: Start fetching reviews from the beginning (offset 0). This is used for pagination.
 ### filter_offtopic_activity=0: Include reviews that are marked as off-topic, e.g. review bombing activities.
 
 base_url <- paste0("https://store.steampowered.com/appreviews/", 
                    appid, 
-                   "?json=1&filter=all&language=english&day_range=148&start_offset=0&filter_offtopic_activity=0")
+                   "?json=1&filter=all&language=english&day_range=365&start_offset=0&filter_offtopic_activity=0")
 print(base_url) # Print the base URL to check if it's correct
 
 ## Create Loop for extracting reviews ----
@@ -49,7 +49,11 @@ while(has_more_reviews) {
                 cursor)
   
   # Make the GET request to the Steam API
-  response <- GET(url)
+  response <- GET(url,
+                  add_headers(
+                    From = "alessio.gallonetto@stud.unilu.ch",
+                    user_agent = R.version$version.string
+                  ))
   data <- fromJSON(rawToChar(response$content)) 
   
   #Check if the reviews exist
@@ -72,48 +76,32 @@ while(has_more_reviews) {
   Sys.sleep(2) # Sleep for 2 second to avoid hitting the API rate limit
 }
 
-## We want to filter for the reviews for launch day. ----
+
+### The cursor tends to not work for a second loop. It worked once,
+### displaying the data as a list of 140 reviews,
+### but the request keeps failing because of the cursor
+
+## Storing the reviews as a data frame
+review <- as.data.frame.character(all_reviews[["review"]])
+
+## Storing the timestamps
+dummy_time <- as.data.frame(all_reviews[["timestamp_created"]])
+
+## Merge the dfs
+tidy_reviews <- cbind(review, dummy_time)
+
+## Filter for launch day reviews
 
 #UNIX Timeframe is 1763082000 - 1763168400 (14th and 15th Nov 2025)
 start_time <- 1763082000
 end_time <- 1763168400
+launch_day_reviews <- tidy_reviews %>%
+  filter(tidy_reviews[2] >= start_time & tidy_reviews[2] <= end_time)
 
-# Filter the list directly
-filtered_reviews <- all_reviews[
-  sapply(all_reviews, function(review) {
-    # Check if timestamp_created exists and is within the range
-    if (!is.null(review$timestamp_created)) {
-      review$timestamp_created >= start_time & review$timestamp_created <= end_time
-    } else {
-      FALSE  # Exclude reviews without a timestamp
-    }
-  })
-]
-  
-  
-  
-# Flatten the list and convert to a data frame
-flattened_reviews <- unlist(all_reviews, recursive = TRUE, use.names = TRUE)
+# Save the data frame as a csv file
+write.csv(launch_day_reviews, "data_preprocessed/launch_day_reviews.csv", row.names = FALSE)
 
-reviews_df <- do.call(rbind, lapply(flattened_reviews, as.data.frame))
+## It returns a small data frame. Since the request was limited to only 20 reviews,
+## there is little data to analyze. It might be tied to the cursor functioning only once,
+## therefore this section needs to be improved.
 
-# View the result
-head(reviews_df)
-
-# Print the number of reviews fetched
-print(paste("Total reviews fetched:", nrow(reviews_df)))
-
-#Save as CSV
-write.csv(reviews_df, "bo7_steam_reviews.csv", row.names = FALSE)
-
-## Clean the data by removing "author" related information ----
-# Assuming 'data' is the parsed JSON from the API response
-
- 
-
-
-# If you want to keep only specific fields (optional)
-reviews_df <- reviews_df[, c("recommendationid", "language", "review", "timestamp_created", "voted_up", "votes_up", "votes_funny", "weighted_vote_score")]
-
-# Print the first few rows to check
-head(reviews_df)
