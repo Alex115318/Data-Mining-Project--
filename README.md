@@ -1,4 +1,4 @@
-# Data Mining Project Template
+# Data Mining Project: The Effect of Review Bombing
 
 This repository contains the code for a small data mining project developed as part of the course:
 
@@ -26,7 +26,7 @@ This project highlights:
 ## Research Question
 
 My research topic focuses on the influence of online sentiment and online social polarisation on games sales, 
-analyzing the sales data during the enaction of so called “review bombings”.
+analyzing the user behavior during and after the so called “review bombings”.
 
 
 
@@ -38,14 +38,21 @@ analyzing the sales data during the enaction of so called “review bombings”.
   Note: To access the API, the key should be added to the URL, but in order to not expose the api key, 
   storing it as an env. variable is recommended. 
  
--
-	
+-SteamDB: https://steamdb.info/
+ Specifically, https://steamdb.info/app/1938090/charts/, to download the CCU and the number of User reviews
+
+-Steam Appreviews: https://partner.steamgames.com/doc/store/getreviews?l=english
+ Public Steam API accessible through simple GET requests. Fetches data on user reviews, 
+ including the time of the review and the text.
 
 
 ## Repository Structure
 
-/code     scripts used to collect/process data
-/data     output datasets (not tracked/pushed by git)
+/scripts             scripts used to collect/process data
+/data_raw            data obtained from downloading or API calls
+/data_preprocessed   cleaned and processed data ready for analysis
+/plots               visualizations generated from the data
+/capstone_report     written report summarizing the findings and the workflow
 README.md   project description
 
 
@@ -55,7 +62,7 @@ To reproduce this project:
 
 1. Clone the repository
 2. Install required R packages
-3. Run the scripts in the `code/` folder
+3. Run the scripts in the `scripts/` folder
 
 All data should be generated automatically by the scripts.
 
