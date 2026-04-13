@@ -30,13 +30,14 @@ all_reviews <- list() # Initialize an empty list to store all reviews
 ### json=1: Return the response in JSON format.
 ### filter=all: Fetch all reviews, including those that are not recommended. 
 ### language=english: Fetch reviews in English.
+### num_per_page=100: Fetch 100 reviews per page. This is the maximum allowed by the API, which helps to minimize the number of requests needed to fetch all reviews.
 ### day_range=365: Fetch reviews from the last 365 days. This limits the reviews to a specific time frame. It is recommended to define this parameter, since older reviews date back years.
 ### start_offset=0: Start fetching reviews from the beginning (offset 0). This is used for pagination.
 ### filter_offtopic_activity=0: Include reviews that are marked as off-topic, e.g. review bombing activities.
 
 base_url <- paste0("https://store.steampowered.com/appreviews/", 
                    appid, 
-                   "?json=1&filter=all&language=english&day_range=365&start_offset=0&filter_offtopic_activity=0")
+                   "?json=1&filter=all&language=english&num_per_page=100&day_range=365&start_offset=0&filter_offtopic_activity=0")
 print(base_url) # Print the base URL to check if it's correct
 
 ## Create Loop for extracting reviews ----
@@ -77,9 +78,9 @@ while(has_more_reviews) {
 }
 
 
-### The cursor tends to not work for a second loop. It worked once,
-### displaying the data as a list of 140 reviews,
-### but the request keeps failing because of the cursor
+### The cursor tends to not work for a second loop, which means that a lot
+### of reviews are not fetched. Still this can be utilized as a baseline code
+### for saving the reviews and filtering out sensitive information.
 
 ## Storing the reviews as a data frame
 review <- as.data.frame.character(all_reviews[["review"]])
